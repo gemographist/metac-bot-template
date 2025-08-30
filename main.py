@@ -127,7 +127,7 @@ class FallTemplateBot2025(ForecastBot):
             
             else:
                 research_results = []
-                for _ in range(5):
+                for _ in range(3):
                     result = await get_combined_response_openrouter(
                         prompt,
                         question.question_text,
@@ -417,6 +417,7 @@ if __name__ == "__main__":
             )
         )
     elif run_mode == "market_pulse":
+        template_bot.skip_previously_forecasted_questions = False
         MP25Q3_TOURNAMENT_ID = 32773
         forecast_reports = asyncio.run(
             template_bot.forecast_on_tournament(
