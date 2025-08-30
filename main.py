@@ -387,14 +387,14 @@ if __name__ == "__main__":
         skip_previously_forecasted_questions=True,
          llms={  
                  "default": GeneralLlm(
-                 model="openrouter/openai/gpt-oss-120b:free",
+                 model="openrouter/openai/gpt-oss-120b",
                  temperature=0.2,
                  timeout=40,
                  allowed_tries=2,
              ),
-             "summarizer": "openrouter/openai/gpt-oss-120b:free",
-             "researcher": "openrouter/openai/gpt-oss-120b:free",  
-             "parser": "openrouter/openai/gpt-oss-120b:free",
+             "summarizer": "openrouter/openai/gpt-oss-20b",
+             "researcher": "openrouter/openai/gpt-oss-120b",  
+             "parser": "openrouter/openai/gpt-oss-20b",
          },
     )         
     if run_mode == "tournament":
