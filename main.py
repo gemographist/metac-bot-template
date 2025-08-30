@@ -76,11 +76,17 @@ class FallTemplateBot2025(ForecastBot):
                 The superforecaster will give you a question they intend to forecast on.
                 To be a great assistant, you generate a very detailed rundown of:
                 1. The most relevant news and most relevant information from searches. 
-                2. Historical precedents: past events, case studies, or reference classes that are related to this question. 
+                2. Historical precedents: past events, case studies, or reference classes that are related to this question.
+                   - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+                   - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
+                   - If the question is relating diseases, pandemics, epidemics, or health and longevity conduct research and answer as though you are an epidemiologist or health advisor.
+                   - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
+                   - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
+                   - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
                    - Identify how often similar events have occurred in the past.
                    - Highlight similarities and differences between past cases and the present one.
                    - Place a greater emphasis on events, news and data that have happened more recently particularly if the closing date or resolution date of the forecasting question is in the near future.
-                Try to diversify your sources, but also ensure that they are reputable.
+                Try to diversify your sources, but also ensure that they are reputable. Avoid using social media for information sources. 
                 Tell the forecaster what YOU think the question will resolve as and why, however you do not produce forecasts yourself.
                 
 
@@ -147,6 +153,12 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
+             - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+             - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
+             - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
+             - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
+             - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
+             - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
 
             Your interview question is:
             {question.question_text}
@@ -197,6 +209,12 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
+             - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+                   - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
+                   - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
+                   - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
+                   - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
+                   - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
 
             Your interview question is:
             {question.question_text}
@@ -264,6 +282,12 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
+             - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+                   - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
+                   - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
+                   - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
+                   - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
+                   - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
 
             Your interview question is:
             {question.question_text}
