@@ -27,82 +27,10 @@ logger = logging.getLogger(__name__)
 
 
 class FallTemplateBot2025(ForecastBot):
-    """
-    This is a copy of the template bot for Fall 2025 Metaculus AI Tournament.
-    This bot is what is used by Metaculus in our benchmark, but is also provided as a template for new bot makers.
-    This template is given as-is, and though we have covered most test cases
-    in forecasting-tools it may be worth double checking key components locally.
 
-    Main changes since Q2:
-    - An LLM now parses the final forecast output (rather than programmatic parsing)
-    - Added resolution criteria and fine print explicitly to the research prompt
-    - Previously in the prompt, nothing about upper/lower bound was shown when the bounds were open. Now a suggestion is made when this is the case.
-    - Support for nominal bounds was added (i.e. when there are discrete questions and normal upper/lower bounds are not as intuitive)
-
-    The main entry point of this bot is `forecast_on_tournament` in the parent class.
-    See the script at the bottom of the file for more details on how to run the bot.
-    Ignoring the finer details, the general flow is:
-    - Load questions from Metaculus
-    - For each question
-        - Execute run_research a number of times equal to research_reports_per_question
-        - Execute respective run_forecast function `predictions_per_research_report * research_reports_per_question` times
-        - Aggregate the predictions
-        - Submit prediction (if publish_reports_to_metaculus is True)
-    - Return a list of ForecastReport objects
-
-    Only the research and forecast functions need to be implemented in ForecastBot subclasses,
-    though you may want to override other ones.
-    In this example, you can change the prompts to be whatever you want since,
-    structure_output uses an LLMto intelligently reformat the output into the needed structure.
-
-    By default (i.e. 'tournament' mode), when you run this script, it will forecast on any open questions for the
-    MiniBench and Seasonal AIB tournaments. If you want to forecast on only one or the other, you can remove one
-    of them from the 'tournament' mode code at the bottom of the file.
-
-    You can experiment with what models work best with your bot by using the `llms` parameter when initializing the bot.
-    You can initialize the bot with any number of models. For example,
-    ```python
-    my_bot = MyBot(
-        ...
-        llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
-            "default": GeneralLlm(
-                model="openrouter/openai/gpt-4o", # "anthropic/claude-3-5-sonnet-20241022", etc (see docs for litellm)
-                temperature=0.3,
-                timeout=40,
-                allowed_tries=2,
-            ),
-            "summarizer": "openai/gpt-4o-mini",
-            "researcher": "asknews/deep-research/low",
-            "parser": "openai/gpt-4o-mini",
-        },
-    )
-    ```
-
-    Then you can access the model in custom functions like this:
-    ```python
-    research_strategy = self.get_llm("researcher", "model_name"
-    if research_strategy == "asknews/deep-research/low":
-        ...
-    # OR
-    summarizer = await self.get_llm("summarizer", "model_name").invoke(prompt)
-    # OR
-    reasoning = await self.get_llm("default", "llm").invoke(prompt)
-    ```
-
-    If you end up having trouble with rate limits and want to try a more sophisticated rate limiter try:
-    ```python
-    from forecasting_tools import RefreshingBucketRateLimiter
-    rate_limiter = RefreshingBucketRateLimiter(
-        capacity=2,
-        refresh_rate=1,
-    ) # Allows 1 request per second on average with a burst of 2 requests initially. Set this as a class variable
-    await self.rate_limiter.wait_till_able_to_acquire_resources(1) # 1 because it's consuming 1 request (use more if you are adding a token limit)
-    ```
-    Additionally OpenRouter has large rate limits immediately on account creation
-    """
 
     _max_concurrent_questions = (
-        2  # Set this to whatever works for your search-provider/ai-model rate limits
+        1  
     )
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
 
@@ -115,7 +43,8 @@ class FallTemplateBot2025(ForecastBot):
                 f"""
                 You are an assistant to a superforecaster.
                 The superforecaster will give you a question they intend to forecast on.
-                To be a great assistant, you generate a concise but detailed rundown of the most relevant news, including if the question would resolve Yes or No based on current information.
+                To be a great assistant, you generate a very detailed rundown of the most relevant news AND most relevent information from searches, including if the question would resolve Yes or No based on current information.
+                You MUST have exactly 5 searches.
                 You do not produce forecasts yourself.
 
                 Question:
@@ -131,25 +60,25 @@ class FallTemplateBot2025(ForecastBot):
             if isinstance(researcher, GeneralLlm):
                 research = await researcher.invoke(prompt)
             elif researcher == "asknews/news-summaries":
-                research = await AskNewsSearcher().get_formatted_news_async(
+                research = await AskNewsSearcher().get_formatted_news_async( 
                     question.question_text
                 )
             elif researcher == "asknews/deep-research/medium-depth":
-                research = await AskNewsSearcher().get_formatted_deep_research(
+                research = await AskNewsSearcher().get_formatted_deep_research( 
                     question.question_text,
                     sources=["asknews", "google"],
                     search_depth=2,
                     max_depth=4,
                 )
             elif researcher == "asknews/deep-research/high-depth":
-                research = await AskNewsSearcher().get_formatted_deep_research(
+                research = await AskNewsSearcher().get_formatted_deep_research( 
                     question.question_text,
                     sources=["asknews", "google"],
                     search_depth=4,
                     max_depth=6,
                 )
             elif researcher.startswith("smart-searcher"):
-                model_name = researcher.removeprefix("smart-searcher/")
+                model_name = researcher.removeprefix("smart-searcher/") 
                 searcher = SmartSearcher(
                     model=model_name,
                     temperature=0,
@@ -161,7 +90,12 @@ class FallTemplateBot2025(ForecastBot):
             elif not researcher or researcher == "None":
                 research = ""
             else:
-                research = await self.get_llm("researcher", "llm").invoke(prompt)
+                research_results = []
+                for _ in range(5):
+                    result = await self.get_llm("researcher", "llm").invoke(prompt) 
+                    research_results.append(result)
+                research = "\n\n".join(research_results)
+                #research = await self.get_llm("researcher", "llm").invoke(prompt)
             logger.info(f"Found Research for URL {question.page_url}:\n{research}")
             return research
 
@@ -387,38 +321,39 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mode",
         type=str,
-        choices=["tournament", "metaculus_cup", "test_questions"],
+        choices=["tournament", "metaculus_cup", "test_questions", "market_pulse",],
         default="tournament",
         help="Specify the run mode (default: tournament)",
     )
     args = parser.parse_args()
-    run_mode: Literal["tournament", "metaculus_cup", "test_questions"] = args.mode
+    run_mode: Literal["tournament", "metaculus_cup", "test_questions", "market_pulse",] = args.mode
     assert run_mode in [
         "tournament",
         "metaculus_cup",
         "test_questions",
+        "market_pulse",
     ], "Invalid run mode"
 
     template_bot = FallTemplateBot2025(
-        research_reports_per_question=1,
+        research_reports_per_question=2,
         predictions_per_research_report=5,
         use_research_summary_to_forecast=False,
         publish_reports_to_metaculus=True,
         folder_to_save_reports_to=None,
         skip_previously_forecasted_questions=True,
-        # llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
-        #     "default": GeneralLlm(
-        #         model="openrouter/openai/gpt-4o", # "anthropic/claude-3-5-sonnet-20241022", etc (see docs for litellm)
-        #         temperature=0.3,
-        #         timeout=40,
-        #         allowed_tries=2,
-        #     ),
-        #     "summarizer": "openai/gpt-4o-mini",
-        #     "researcher": "asknews/deep-research/low",
-        #     "parser": "openai/gpt-4o-mini",
-        # },
-    )
-
+         llms={  
+                 "default": GeneralLlm(
+                 model="openrouter/deepseek/deepseek-chat-v3-0324:free", #"openrouter/openai/o3-mini-high",
+                 temperature=0.2,
+                 timeout=40,
+                 allowed_tries=2,
+             ),
+             "summarizer": "openrouter/qwen/qwen3-coder:free", #"openrouter/openai/gpt-4.1-nano",
+             "researcher": "openrouter/google/gemini-2.0-flash-exp:free:online", #"openrouter/anthropic/claude-sonnet-4:online",
+             "parser": "openrouter/qwen/qwen3-coder:free", #"openrouter/openai/gpt-4.1-nano",
+         },
+    )         
+    #ballin
     if run_mode == "tournament":
         seasonal_tournament_reports = asyncio.run(
             template_bot.forecast_on_tournament(
@@ -440,13 +375,22 @@ if __name__ == "__main__":
                 MetaculusApi.CURRENT_METACULUS_CUP_ID, return_exceptions=True
             )
         )
+    elif run_mode == "market_pulse":
+        MP25Q3_TOURNAMENT_ID = 32773
+     # The Metaculus cup is a good way to test the bot's performance on regularly open questions. You can also use AXC_2025_TOURNAMENT_ID = 32564 or AI_2027_TOURNAMENT_ID = "ai-2027"
+     # The Metaculus cup may not be initialized near the beginning of a season (i.e. January, May, September)
+        forecast_reports = asyncio.run(
+            template_bot.forecast_on_tournament(
+                MP25Q3_TOURNAMENT_ID, return_exceptions=True
+            )
+        )       
     elif run_mode == "test_questions":
         # Example questions are a good way to test the bot's performance on a single question
         EXAMPLE_QUESTIONS = [
             "https://www.metaculus.com/questions/578/human-extinction-by-2100/",  # Human Extinction - Binary
-            "https://www.metaculus.com/questions/14333/age-of-oldest-human-as-of-2100/",  # Age of Oldest Human - Numeric
-            "https://www.metaculus.com/questions/22427/number-of-new-leading-ai-labs/",  # Number of New Leading AI Labs - Multiple Choice
-            "https://www.metaculus.com/c/diffusion-community/38880/how-many-us-labor-strikes-due-to-ai-in-2029/",  # Number of US Labor Strikes Due to AI in 2029 - Discrete
+            #"https://www.metaculus.com/questions/14333/age-of-oldest-human-as-of-2100/",  # Age of Oldest Human - Numeric
+            #"https://www.metaculus.com/questions/22427/number-of-new-leading-ai-labs/",  # Number of New Leading AI Labs - Multiple Choice
+            #"https://www.metaculus.com/c/diffusion-community/38880/how-many-us-labor-strikes-due-to-ai-in-2029/",  # Number of US Labor Strikes Due to AI in 2029 - Discrete
         ]
         template_bot.skip_previously_forecasted_questions = False
         questions = [
