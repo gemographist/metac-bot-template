@@ -1,8 +1,40 @@
 import argparse
 import asyncio
 import logging
+import time
 from datetime import datetime
 from typing import Literal
+from duckduckgo_search import DDGS
+ddgs = DDGS() 
+def search_internet(query: str, max_results: int = 10):
+    try:
+        results = ddgs.text(query, max_results=max_results)
+        filtered_results = [result for result in results if 'body' in result]
+        return filtered_results
+    except Exception as e:
+        print(f"Error searching internet: {e}")
+        return []
+    finally:
+        time.sleep(3)
+
+async def get_combined_response_openrouter(prompt: str, query: str, model: str):
+    search_results = search_internet(query)
+    search_content = "\n".join([result['body'] for result in search_results])
+
+    full_prompt = f"""{prompt}
+
+    Additional Internet Search Results:
+    {search_content}
+    """
+
+    llm = GeneralLlm(
+        model=model,
+        temperature=0.2,
+        timeout=40,
+        allowed_tries=2,
+    )
+    response = await llm.invoke(full_prompt)
+    return response
 
 from forecasting_tools import (
     AskNewsSearcher,
@@ -25,7 +57,6 @@ from forecasting_tools import (
 
 logger = logging.getLogger(__name__)
 
-
 class FallTemplateBot2025(ForecastBot):
 
 
@@ -43,9 +74,13 @@ class FallTemplateBot2025(ForecastBot):
                 f"""
                 You are an assistant to a superforecaster.
                 The superforecaster will give you a question they intend to forecast on.
-                To be a great assistant, you generate a very detailed rundown of the most relevant news AND most relevent information from searches, including if the question would resolve Yes or No based on current information.
-                You MUST have exactly 5 searches.
-                You do not produce forecasts yourself.
+                To be a great assistant, you generate a very detailed rundown of:
+                1. The most relevant news and most relevant information from searches. 
+                2. Historical precedents: past events, case studies, or reference classes that are related to this question. 
+                   - Identify how often similar events have occurred in the past.
+                   - Highlight similarities and differences between past cases and the present one.
+                Try to diversify your sources, but also ensure that they are reputable.
+                Tell the forecaster what YOU think the question will resolve as and why, however you do not produce forecasts yourself.
 
                 Question:
                 {question.question_text}
@@ -60,11 +95,11 @@ class FallTemplateBot2025(ForecastBot):
             if isinstance(researcher, GeneralLlm):
                 research = await researcher.invoke(prompt)
             elif researcher == "asknews/news-summaries":
-                research = await AskNewsSearcher().get_formatted_news_async( 
+                research = await AskNewsSearcher().get_formatted_news_async(
                     question.question_text
                 )
             elif researcher == "asknews/deep-research/medium-depth":
-                research = await AskNewsSearcher().get_formatted_deep_research( 
+                research = await AskNewsSearcher().get_formatted_deep_research(
                     question.question_text,
                     sources=["asknews", "google"],
                     search_depth=2,
@@ -89,13 +124,18 @@ class FallTemplateBot2025(ForecastBot):
                 research = await searcher.invoke(prompt)
             elif not researcher or researcher == "None":
                 research = ""
+            
             else:
                 research_results = []
                 for _ in range(5):
-                    result = await self.get_llm("researcher", "llm").invoke(prompt) 
+                    result = await get_combined_response_openrouter(
+                        prompt,
+                        question.question_text,
+                        model=self.get_llm("researcher")
+                    )
                     research_results.append(result)
+                    await asyncio.sleep(3)
                 research = "\n\n".join(research_results)
-                #research = await self.get_llm("researcher", "llm").invoke(prompt)
             logger.info(f"Found Research for URL {question.page_url}:\n{research}")
             return research
 
@@ -131,6 +171,7 @@ class FallTemplateBot2025(ForecastBot):
             (d) A brief description of a scenario that results in a Yes outcome.
 
             You write your rationale remembering that good forecasters put extra weight on the status quo outcome since the world changes slowly most of the time.
+            Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised harder for adding that confidence.
 
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
@@ -179,6 +220,7 @@ class FallTemplateBot2025(ForecastBot):
             (c) A description of an scenario that results in an unexpected outcome.
 
             You write your rationale remembering that (1) good forecasters put extra weight on the status quo outcome since the world changes slowly most of the time, and (2) good forecasters leave some moderate probability on most options to account for unexpected outcomes.
+            Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised harder for adding that confidence.
 
             The last thing you write is your final probabilities for the N options in this order {question.options} as:
             Option_A: Probability_A
@@ -253,6 +295,7 @@ class FallTemplateBot2025(ForecastBot):
             (f) A brief description of an unexpected scenario that results in a high outcome.
 
             You remind yourself that good forecasters are humble and set wide 90/10 confidence intervals to account for unknown unknowns.
+            Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised heavily for adding that confidence.
 
             The last thing you write is your final answer as:
             "
@@ -310,10 +353,11 @@ if __name__ == "__main__":
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    # Suppress LiteLLM logging
     litellm_logger = logging.getLogger("LiteLLM")
     litellm_logger.setLevel(logging.WARNING)
     litellm_logger.propagate = False
+    logging.getLogger("openai.agents").setLevel(logging.ERROR)
+    logging.getLogger("forecasting_tools.ai_models.model_tracker").setLevel(logging.ERROR)
 
     parser = argparse.ArgumentParser(
         description="Run the Q1TemplateBot forecasting system"
@@ -343,17 +387,16 @@ if __name__ == "__main__":
         skip_previously_forecasted_questions=True,
          llms={  
                  "default": GeneralLlm(
-                 model="openrouter/deepseek/deepseek-chat-v3-0324:free", #"openrouter/openai/o3-mini-high",
+                 model="openrouter/openai/gpt-oss-120b:free",
                  temperature=0.2,
                  timeout=40,
                  allowed_tries=2,
              ),
-             "summarizer": "openrouter/qwen/qwen3-coder:free", #"openrouter/openai/gpt-4.1-nano",
-             "researcher": "openrouter/google/gemini-2.0-flash-exp:free:online", #"openrouter/anthropic/claude-sonnet-4:online",
-             "parser": "openrouter/qwen/qwen3-coder:free", #"openrouter/openai/gpt-4.1-nano",
+             "summarizer": "openrouter/openai/gpt-oss-120b:free",
+             "researcher": "openrouter/openai/gpt-oss-120b:free",  
+             "parser": "openrouter/openai/gpt-oss-120b:free",
          },
     )         
-    #ballin
     if run_mode == "tournament":
         seasonal_tournament_reports = asyncio.run(
             template_bot.forecast_on_tournament(
@@ -367,8 +410,6 @@ if __name__ == "__main__":
         )
         forecast_reports = seasonal_tournament_reports + minibench_reports
     elif run_mode == "metaculus_cup":
-        # The Metaculus cup is a good way to test the bot's performance on regularly open questions. You can also use AXC_2025_TOURNAMENT_ID = 32564 or AI_2027_TOURNAMENT_ID = "ai-2027"
-        # The Metaculus cup may not be initialized near the beginning of a season (i.e. January, May, September)
         template_bot.skip_previously_forecasted_questions = False
         forecast_reports = asyncio.run(
             template_bot.forecast_on_tournament(
@@ -377,15 +418,12 @@ if __name__ == "__main__":
         )
     elif run_mode == "market_pulse":
         MP25Q3_TOURNAMENT_ID = 32773
-     # The Metaculus cup is a good way to test the bot's performance on regularly open questions. You can also use AXC_2025_TOURNAMENT_ID = 32564 or AI_2027_TOURNAMENT_ID = "ai-2027"
-     # The Metaculus cup may not be initialized near the beginning of a season (i.e. January, May, September)
         forecast_reports = asyncio.run(
             template_bot.forecast_on_tournament(
                 MP25Q3_TOURNAMENT_ID, return_exceptions=True
             )
         )       
     elif run_mode == "test_questions":
-        # Example questions are a good way to test the bot's performance on a single question
         EXAMPLE_QUESTIONS = [
             "https://www.metaculus.com/questions/578/human-extinction-by-2100/",  # Human Extinction - Binary
             #"https://www.metaculus.com/questions/14333/age-of-oldest-human-as-of-2100/",  # Age of Oldest Human - Numeric
