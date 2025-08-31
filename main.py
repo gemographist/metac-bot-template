@@ -76,9 +76,8 @@ class FallTemplateBot2025(ForecastBot):
                 The superforecaster will give you a question they intend to forecast on.
                 To be a great assistant, you generate a very detailed rundown of:
                 1. The most relevant news and most relevant information from searches. 
-                2. Historical precedents: past events, case studies, or reference classes that are related to this question.
-                3. Take advantage of the Wisdom of the Crowds and include forecasts on the same or similar questions from prediction markets such as Metaculus, Polymarket, Kalshi and Manifold but ignore forecasts submitted by bots in bot-forecasting tournaments.  
-                   - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+                2. Historical precedents: past events, case studies, or reference classes that are related to this question. 
+                   - If the question is relating to value, finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
                    - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
                    - If the question is relating diseases, pandemics, epidemics, or health and longevity conduct research and answer as though you are an epidemiologist or health advisor.
                    - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
@@ -154,7 +153,6 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
-            Take advantage of the Wisdom of the Crowds and include forecasts on the same or similar questions from prediction markets such as Metaculus, Polymarket, Kalshi and Manifold but ignore forecasts that are part of bot-forecasting tournaments. 
              - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
              - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
              - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
@@ -210,8 +208,7 @@ class FallTemplateBot2025(ForecastBot):
     ) -> ReasonedPrediction[PredictedOptionList]:
         prompt = clean_indents(
             f"""
-            You are a professional forecaster interviewing for a job.
-            Take advantage of the Wisdom of the Crowds and include forecasts on the same or similar questions from prediction markets such as Metaculus, Polymarket, Kalshi and Manifold but ignore forecasts submitted by bots in bot-forecasting tournaments. 
+            You are a professional forecaster interviewing for a job. 
              - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
                    - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
                    - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
@@ -285,7 +282,6 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
-            Take advantage of the Wisdom of the Crowds and include forecasts on the same or similar questions from prediction markets such as Metaculus, Polymarket, Kalshi and Manifold but ignore forecasts submitted by bots in bot-forecasting tournaments. 
              - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
                    - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
                    - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
