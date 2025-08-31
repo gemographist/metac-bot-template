@@ -86,8 +86,8 @@ class FallTemplateBot2025(ForecastBot):
                    - Identify how often similar events have occurred in the past.
                    - Highlight similarities and differences between past cases and the present one.
                 Today is {datetime.now().strftime("%Y-%m-%d")}
-                Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future.
-                Diversify your sources, but also ensure that they are reputable. Avoid using social media for information sources. 
+                Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future. Consider all of the prerequisites, criteria or conditions that needs to be met in {question.resolution_criteria}, how many of them have been met or satisfied already, and how many more are required between {datetime.now().strftime("%Y-%m-%d")} and the resolution date outlined in {question.resolution_criteria}.
+                Comment on the likelihood of any remaining resolution criteria being met in this time frame. 
                 Tell the forecaster what YOU think the question will resolve as and why, however you do not produce forecasts yourself.
                 
 
@@ -161,7 +161,8 @@ class FallTemplateBot2025(ForecastBot):
              - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
              - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
              Today is {datetime.now().strftime("%Y-%m-%d")}
-             Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future.
+             Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future. Consider all of the prerequisites, criteria or conditions that needs to be met in {question.resolution_criteria}, how many of them have been met or satisfied already, and how many more are required between {datetime.now().strftime("%Y-%m-%d")} and the resolution date outlined in {question.resolution_criteria}.
+             Adjust your forecast accordingly. 
 
             Your interview question is:
             {question.question_text}
@@ -190,7 +191,8 @@ class FallTemplateBot2025(ForecastBot):
             You write your rationale remembering that good forecasters put extra weight on the status quo outcome since the world changes slowly most of the time.
             Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised harder for adding that confidence.
             Today is {datetime.now().strftime("%Y-%m-%d")}
-            Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future.
+            Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future. Consider all of the prerequisites, criteria or conditions that needs to be met in {question.resolution_criteria}, how many of them have been met or satisfied already, and how many more are required between {datetime.now().strftime("%Y-%m-%d")} and the resolution date outlined in {question.resolution_criteria}.
+             Adjust your forecast accordingly. 
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
@@ -219,7 +221,8 @@ class FallTemplateBot2025(ForecastBot):
                    - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
                    - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
                    Today is {datetime.now().strftime("%Y-%m-%d")}
-             Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future.
+             Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future. Consider all of the prerequisites, criteria or conditions that needs to be met in {question.resolution_criteria}, how many of them have been met or satisfied already, and how many more are required between {datetime.now().strftime("%Y-%m-%d")} and the resolution date outlined in {question.resolution_criteria}.
+             Adjust your forecast accordingly. 
 
             Your interview question is:
             {question.question_text}
@@ -244,6 +247,7 @@ class FallTemplateBot2025(ForecastBot):
             (a) The time left until the outcome to the question is known.
             (b) The status quo outcome if nothing changed.
             (c) A description of an scenario that results in an unexpected outcome.
+            
 
             You write your rationale remembering that (1) good forecasters put extra weight on the status quo outcome since the world changes slowly most of the time, and (2) good forecasters leave some moderate probability on most options to account for unexpected outcomes.
             Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised heavily for adding that confidence.
@@ -294,7 +298,8 @@ class FallTemplateBot2025(ForecastBot):
                    - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
                    - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
                    Today is {datetime.now().strftime("%Y-%m-%d")}
-             Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future.
+             Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future. Consider all of the prerequisites, criteria or conditions that needs to be met in {question.resolution_criteria}, how many of them have been met or satisfied already, and how many more are required between {datetime.now().strftime("%Y-%m-%d")} and the resolution date outlined in {question.resolution_criteria}.
+             Adjust your forecast accordingly. 
 
             Your interview question is:
             {question.question_text}
@@ -332,7 +337,8 @@ class FallTemplateBot2025(ForecastBot):
             You remind yourself that good forecasters are humble and set wide 90/10 confidence intervals to account for unknown unknowns.
             Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised heavily for adding that confidence.
             Today is {datetime.now().strftime("%Y-%m-%d")}
-            Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future.
+            Place a greater emphasis on events, news and data that have happened from the past 3 months, particularly if the closing or resolution date of the forecasting question is in the near future. Consider all of the prerequisites, criteria or conditions that needs to be met in {question.resolution_criteria}, how many of them have been met or satisfied already, and how many more are required between {datetime.now().strftime("%Y-%m-%d")} and the resolution date outlined in {question.resolution_criteria}.
+             Adjust your forecast accordingly. ture.
             The last thing you write is your final answer as:
             "
             Percentile 10: XX
