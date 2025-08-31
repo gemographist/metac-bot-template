@@ -77,7 +77,7 @@ class FallTemplateBot2025(ForecastBot):
                 To be a great assistant, you generate a very detailed rundown of:
                 1. The most relevant news and most relevant information from searches. 
                 2. Historical precedents: past events, case studies, or reference classes that are related to this question. 
-                   - If the question is relating to value, finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+                   - If the question is relating to monetary value, monetary or fiscal policy, finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
                    - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
                    - If the question is relating diseases, pandemics, epidemics, or health and longevity conduct research and answer as though you are an epidemiologist or health advisor.
                    - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
@@ -85,8 +85,9 @@ class FallTemplateBot2025(ForecastBot):
                    - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
                    - Identify how often similar events have occurred in the past.
                    - Highlight similarities and differences between past cases and the present one.
-                   - Place a greater emphasis on events, news and data that have happened more recently particularly if the closing date or resolution date of the forecasting question is in the near future.
-                Try to diversify your sources, but also ensure that they are reputable.Avoid using social media for information sources. 
+                Today is {datetime.now().strftime("%Y-%m-%d")}
+                Place a greater emphasis on events, news and data that have happened more recently particularly if the closing or resolution date of the forecasting question is in the near future.
+                Diversify your sources, but also ensure that they are reputable. Avoid using social media for information sources. 
                 Tell the forecaster what YOU think the question will resolve as and why, however you do not produce forecasts yourself.
                 
 
@@ -153,12 +154,14 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
-             - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+             - If the question is relating to monetary value, monetary or fiscal policy, finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
              - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
              - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
              - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
              - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
              - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
+             Today is {datetime.now().strftime("%Y-%m-%d")}
+             Place a greater emphasis on events, news and data that have happened more recently particularly if the closing or resolution date of the forecasting question is in the near future.
 
             Your interview question is:
             {question.question_text}
@@ -186,8 +189,8 @@ class FallTemplateBot2025(ForecastBot):
 
             You write your rationale remembering that good forecasters put extra weight on the status quo outcome since the world changes slowly most of the time.
             Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised harder for adding that confidence.
-            Place a greater emphasis on events, news and data that have happened more recently particularly if the closing date or resolution date of the forecasting question is in the near future.
-
+            Today is {datetime.now().strftime("%Y-%m-%d")}
+            Place a greater emphasis on events, news and data that have happened more recently particularly if the closing or resolution date of the forecasting question is in the near future.
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
@@ -209,12 +212,14 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job. 
-             - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+             - If the question is relating to monetary value, monetary or fiscal policy, finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
                    - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
                    - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
                    - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
                    - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
                    - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
+                   Today is {datetime.now().strftime("%Y-%m-%d")}
+             Place a greater emphasis on events, news and data that have happened more recently particularly if the closing or resolution date of the forecasting question is in the near future.
 
             Your interview question is:
             {question.question_text}
@@ -282,12 +287,14 @@ class FallTemplateBot2025(ForecastBot):
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
-             - If the question is relating to finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
+             If the question is relating to monetary value, monetary or fiscal policy, finances, budgets, trading, stock markets, conduct research and answer as though you are an economist or financial advisor.
                    - If the question is relating to conflict or war, conduct research and answer as though you are a geopolitical or war strategist or political advisor.
                    - If the question is relating diseases, epidemics, or health conduct research and answer as though you are an epidemiologist or health advisor.
                    - If the question is regarding politics, conduct research and answer the question as though you are a political strategist or advisor.
                    - If the question is regarding the environment, climate change, natural disasters, or earth sciences, conduct research and answer as though you are a geoscientist.
                    - If the question is regarding technology such as AI, computing, quantum computing, computer chips, cars or similar, conduct research and answer as though you are a technologist or technology advisor.
+                   Today is {datetime.now().strftime("%Y-%m-%d")}
+             Place a greater emphasis on events, news and data that have happened more recently particularly if the closing or resolution date of the forecasting question is in the near future.
 
             Your interview question is:
             {question.question_text}
@@ -324,8 +331,8 @@ class FallTemplateBot2025(ForecastBot):
 
             You remind yourself that good forecasters are humble and set wide 90/10 confidence intervals to account for unknown unknowns.
             Keep in mind that if you put extra weight on a prediction and your prediction is correct, you will score better. However if your prediction is wrong, you will be penalised heavily for adding that confidence.
-            Place a greater emphasis on events, news and data that have happened more recently particularly if the closing date or resolution date of the forecasting question is in the near future.
-
+            Today is {datetime.now().strftime("%Y-%m-%d")}
+            Place a greater emphasis on events, news and data that have happened more recently particularly if the closing or resolution date of the forecasting question is in the near future.
             The last thing you write is your final answer as:
             "
             Percentile 10: XX
