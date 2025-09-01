@@ -418,7 +418,7 @@ if __name__ == "__main__":
     run_mode: Literal["tournament", "metaculus_cup", "test_questions", "market_pulse",] = args.mode
     assert run_mode in [
         "tournament",
-        #"metaculus_cup",
+        "metaculus_cup",
         #"test_questions",
         "market_pulse",
     ], "Invalid run mode"
