@@ -432,14 +432,14 @@ if __name__ == "__main__":
         skip_previously_forecasted_questions=True,
          llms={  
                  "default": GeneralLlm(
-                 model="openrouter/openai/gpt-oss-120b",
+                 model="openrouter/openai/gpt-5-nano",
                  temperature=0.2,
                  timeout=40,
                  allowed_tries=2,
              ),
-             "summarizer": "openrouter/openai/gpt-oss-20b",
-             "researcher": "openrouter/openai/gpt-oss-120b",  
-             "parser": "openrouter/openai/gpt-oss-20b",
+             "summarizer": "openrouter/openai/gpt-5-nano",
+             "researcher": "openrouter/openai/gpt-5-nano",  
+             "parser": "openrouter/openai/gpt-5-nano",
          },
     )         
     if run_mode == "tournament":
