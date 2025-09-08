@@ -419,7 +419,7 @@ if __name__ == "__main__":
     assert run_mode in [
         "tournament",
         "metaculus_cup",
-        #"test_questions",
+        "test_questions",
         "market_pulse",
     ], "Invalid run mode"
 
