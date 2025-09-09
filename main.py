@@ -438,7 +438,7 @@ if __name__ == "__main__":
                  allowed_tries=2,
              ),
              "summarizer": "openrouter/openai/gpt-5-nano",
-             "researcher": "openrouter/openai/gpt-5-nano",  
+             "researcher": "openrouter/openai/gpt-4o-mini",  
              "parser": "openrouter/openai/gpt-5-nano",
          },
     )         
