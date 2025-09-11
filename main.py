@@ -456,6 +456,7 @@ if __name__ == "__main__":
         forecast_reports = seasonal_tournament_reports + minibench_reports
     elif run_mode == "metaculus_cup":
         template_bot.skip_previously_forecasted_questions = False
+        CURRENT_METACULUS_CUP_ID = 32828
         forecast_reports = asyncio.run(
             template_bot.forecast_on_tournament(
                 MetaculusApi.CURRENT_METACULUS_CUP_ID, return_exceptions=True
