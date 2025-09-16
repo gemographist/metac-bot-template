@@ -431,7 +431,7 @@ if __name__ == "__main__":
          llms={  
                  "default": GeneralLlm(
                  model="openrouter/openai/gpt-4o-mini",
-                 temperature=0.2,
+                 temperature=0.1,
                  timeout=40,
                  allowed_tries=2,
              ),
