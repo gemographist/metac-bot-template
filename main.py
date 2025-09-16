@@ -86,9 +86,7 @@ class FallTemplateBot2025(ForecastBot):
                    - Identify how often similar events have occurred in the past.
                    - Highlight similarities and differences between past cases and the present one.
                 Today is {datetime.now().strftime("%Y-%m-%d")}
-                Place a greater emphasis on events, news and data that have happened from the past 1 months, particularly if the closing or resolution date of the forecasting question is in the near future. 
-                Consider all of the prerequisites, criteria or conditions that needs to be met in the resolution criteria ( {question.resolution_criteria} ), how many of them have been met or satisfied already, and how many more are required between today's time and date ( {datetime.now().strftime("%Y-%m-%d")} ) and the resolution date outlined in the resolution criteria ( {question.resolution_criteria} ).
-                Comment on the likelihood of any remaining resolution criteria being met in this time frame. 
+                If the closing or resolution date of the forecasting question is in the near future. Place a greater emphasis on events, news and data that have happened from the past 1 month. 
                 Tell the forecaster what YOU think the question will resolve as and why, however you do not produce forecasts yourself.
                 
 
