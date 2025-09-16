@@ -29,7 +29,7 @@ async def get_combined_response_openrouter(prompt: str, query: str, model: str):
 
     llm = GeneralLlm(
         model=model,
-        temperature=0.2,
+        temperature=0.1,
         timeout=40,
         allowed_tries=2,
     )
