@@ -10,11 +10,16 @@ package-mode = false
 python = "^3.11"
 python-decouple = "^3.8"
 requests = "^2.32.3"
-asknews = "^0.13.11"
 numpy = "^2.3.0"
 openai = "^2.0.0"
 python-dotenv = "^1.0.1"
 forecasting-tools = "^0.2.90"
+# --- free web search (scripts/websearch.py), same stack as the
+#     lmstudio-bionic Skill: multiple ddgs search backends + page scraping.
+#     No API key required for any of these.
+ddgs = "^9.0.0"
+trafilatura = "^2.0.0"
+beautifulsoup4 = "^4.12.3"
 
 
 [tool.poetry.group.integrations]
@@ -31,4 +36,3 @@ ipykernel = "^6.29.5"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
