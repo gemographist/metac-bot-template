@@ -1,6 +1,8 @@
 import argparse
 import asyncio
 import logging
+import os
+import sys
 from datetime import datetime, timezone
 from typing import Literal
 
@@ -17,7 +19,6 @@ from bot_helpers import (
 silence_noisy_dependencies()
 
 from forecasting_tools import (
-    AskNewsSearcher,
     BinaryQuestion,
     ForecastBot,
     GeneralLlm,
@@ -36,13 +37,41 @@ from forecasting_tools import (
     BinaryPrediction,
     PredictedOptionList,
     ReasonedPrediction,
-    SmartSearcher,
     clean_indents,
     structure_output,
 )
 
+# scripts/websearch.py -- the same free, no-API-key, multi-backend
+# (Brave/Google/Bing/DuckDuckGo/Yahoo via ddgs + trafilatura/BeautifulSoup
+# scraping) search function used by the lmstudio-bionic Skill. Imported
+# directly and run in a thread since it's a blocking function.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from scripts.websearch import web_search  # noqa: E402
+
 dotenv.load_dotenv()
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# All-free model configuration (OpenRouter's free tier -- no paid keys
+# needed anywhere in this bot). PRIMARY is tried first; if it errors out
+# (rate limited, provider down, etc.) litellm's native `fallbacks` kwarg
+# (passed through GeneralLlm's **kwargs) automatically retries the same
+# call against FALLBACK before giving up.
+# ---------------------------------------------------------------------------
+FREE_PRIMARY_MODEL = "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+FREE_FALLBACK_MODEL = "openrouter/poolside/laguna-s-2.1:free"
+
+
+def free_llm(temperature: float = 0.3) -> GeneralLlm:
+    """A GeneralLlm pointed at the free primary model, with the free
+    fallback model wired in via litellm's `fallbacks` kwarg."""
+    return GeneralLlm(
+        model=FREE_PRIMARY_MODEL,
+        temperature=temperature,
+        timeout=90,
+        allowed_tries=2,
+        fallbacks=[FREE_FALLBACK_MODEL],
+    )
 
 
 class SummerTemplateBot2026(ForecastBot):
@@ -100,6 +129,13 @@ class SummerTemplateBot2026(ForecastBot):
     )
     ```
 
+    This all-free build uses two OpenRouter free-tier models (see FREE_PRIMARY_MODEL /
+    FREE_FALLBACK_MODEL and free_llm() near the top of this file) for "default", "parser"
+    and "summarizer", and skips the "researcher" key entirely -- run_research() below
+    doesn't call an LLM at all, it calls the free, no-API-key web search from
+    scripts/websearch.py (the same multi-backend search+scrape used by the
+    lmstudio-bionic Skill) with the question text as the query.
+
     Then you can access the model in custom functions like this:
     ```python
     research_strategy = self.get_llm("researcher", "model_name"
@@ -133,51 +169,26 @@ class SummerTemplateBot2026(ForecastBot):
 
     async def run_research(self, question: MetaculusQuestion) -> str:
         async with self._concurrency_limiter:
-            research = ""
-            researcher = self.get_llm("researcher")
-
-            prompt = clean_indents(
-                f"""
-                You are an assistant to a superforecaster.
-                The superforecaster will give you a question they intend to forecast on.
-                To be a great assistant, you generate a concise but detailed rundown of the most relevant news, including if the question would resolve Yes or No based on current information.
-                You do not produce forecasts yourself.
-
-                Question:
-                {question.question_text}
-
-                This question's outcome will be determined by the specific criteria below:
-                {question.resolution_criteria}
-
-                {question.fine_print}
-                """
+            # Free, no-API-key web research: query is JUST the question text,
+            # run through the same multi-backend search + scrape function
+            # used by the lmstudio-bionic Skill (scripts/websearch.py).
+            # No LLM call is made here -- the raw search results are handed
+            # straight to the forecasting prompt as "research".
+            query = question.question_text
+            logger.info(
+                f"Running free web search for URL {question.page_url} "
+                f"with query: {query!r}"
             )
+            try:
+                research = await asyncio.to_thread(
+                    web_search, query, 4, True  # query, max_results, scrape
+                )
+            except Exception as exc:
+                logger.warning(
+                    f"web_search failed for URL {question.page_url}: {exc}"
+                )
+                research = f"(Web search failed: {exc})"
 
-            if isinstance(researcher, GeneralLlm):
-                research = await researcher.invoke(prompt)
-            elif (
-                researcher == "asknews/news-summaries"
-                or researcher == "asknews/deep-research/low-depth"
-                or researcher == "asknews/deep-research/medium-depth"
-                or researcher == "asknews/deep-research/high-depth"
-            ):
-                research = await AskNewsSearcher().call_preconfigured_version(
-                    researcher, prompt
-                )
-            elif researcher.startswith("smart-searcher"):
-                model_name = researcher.removeprefix("smart-searcher/")
-                searcher = SmartSearcher(
-                    model=model_name,
-                    temperature=0,
-                    num_searches_to_run=2,
-                    num_sites_per_search=10,
-                    use_advanced_filters=False,
-                )
-                research = await searcher.invoke(prompt)
-            elif not researcher or researcher == "None" or researcher == "no_research":
-                research = ""
-            else:
-                research = await self.get_llm("researcher", "llm").invoke(prompt)
             logger.info(f"Found Research for URL {question.page_url}:\n{research}")
             return research
 
@@ -667,9 +678,9 @@ if __name__ == "__main__":
     publish_to_metaculus = True
     print_startup_banner(run_mode, will_publish=publish_to_metaculus)
 
-    # Configure the bot. The `llms=` block below is commented out to use
-    # whichever default models forecasting-tools picks based on your env vars;
-    # uncomment and edit to pin specific models.
+    # Configure the bot. Every model here is the OpenRouter free tier --
+    # "researcher" is intentionally omitted since run_research() no longer
+    # calls an LLM at all (it calls scripts/websearch.py directly).
     template_bot = SummerTemplateBot2026(
         research_reports_per_question=1,
         predictions_per_research_report=5,
@@ -678,17 +689,11 @@ if __name__ == "__main__":
         folder_to_save_reports_to=None,
         skip_previously_forecasted_questions=True,
         extra_metadata_in_explanation=True,
-        # llms={
-        #     "default": GeneralLlm(
-        #         model="openrouter/openai/gpt-4o",
-        #         temperature=0.3,
-        #         timeout=40,
-        #         allowed_tries=2,
-        #     ),
-        #     "summarizer": "openai/gpt-4o-mini",
-        #     "researcher": "asknews/news-summaries",
-        #     "parser": "openai/gpt-4o-mini",
-        # },
+        llms={
+            "default": free_llm(temperature=0.3),
+            "parser": free_llm(temperature=0),
+            "summarizer": free_llm(temperature=0),
+        },
     )
 
     # Per-mode tournament URL shown in the summary banner footer. These
