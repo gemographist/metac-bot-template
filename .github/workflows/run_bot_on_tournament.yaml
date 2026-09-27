@@ -28,6 +28,9 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
+      - name: Regenerate Poetry lock file
+        run: |
+          poetry lock
       # Adding the below will make the workflow faster, but will mean you don't automatically get updates from forecasting-tools and other packages
       # - name: Load cached venv
       #   id: cached-poetry-dependencies
@@ -42,12 +45,7 @@ jobs:
           poetry run python main.py
         # this reads the environment variables from the github repository.
         # Store under Settings --> Secrets and variables --> Actions
+        # This bot is all-free: only these two secrets are needed.
         env:
           METACULUS_TOKEN: ${{ secrets.METACULUS_TOKEN }} # replace this with the name of the variable under which you stored your own Metaculus token
-          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ASKNEWS_CLIENT_ID: ${{ secrets.ASKNEWS_CLIENT_ID }}
-          ASKNEWS_SECRET: ${{ secrets.ASKNEWS_SECRET }}
